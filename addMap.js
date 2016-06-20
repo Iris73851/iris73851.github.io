@@ -50,15 +50,7 @@
 	    	          map: map
 	    	        });
 	
-	    	        //地圖上標籤內容
-	    	        var infowindow = new google.maps.InfoWindow({
-	    	          content: "QQQ 寫不出來"
-	    	        });
-					
-	    	        console.log("QQQ");
-	    	        marker.addListener('click', function() {
-	    	          infowindow.open(map, marker);
-	    	        });
+	    	        
 
     	        }
       window.addEventListener( "load", initialize, false );

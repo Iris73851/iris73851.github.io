@@ -63,20 +63,28 @@
 	
 </script>
 </head>
-<body>
+<body background="HungryTaiwan-1.png">
 
+<div align="center">
+<div style="
+background-image:url('registerImg.png');
+padding:5px;width:677px;height:686px;
+border:0px;background-repeat:no-repeat;">
 
-<h1>Register</h1>
+<br><br><br><br><br><br><br><br><br><br><br><br>
+<img src="Register.png"></img>
 <form action="registerServlet" method="post" name="form1">
-Username:
+<img src="Username-1.png"></img>
 <input name="id" type="text" id="id" onchange="check"> 
-<br>
-Password:
+<br><br>
+<img src="Password-1.png"></img>
 <input name="password" type="password" id="password">
 <br>
 <br>
-<input name="submit" type="submit"></form>
+<input name="submit" type="image" src="Submit-1.png"></form>
 
+</div>
+</div>
 
 </body>
 </html>

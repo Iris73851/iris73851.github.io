@@ -50,7 +50,7 @@
             stmt = conn.createStatement(); 
             
           	//建立查詢並產生rs的資料表 
-            String sql = "select * from shop"; 
+            String sql = "select * from shop where userid='"+session.getAttribute("userName")+"'"; 
             ResultSet rs = stmt.executeQuery(sql); 
              
            	            
