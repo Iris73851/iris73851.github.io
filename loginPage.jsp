@@ -3,7 +3,22 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <body background="HungryTaiwan.png">
-
+<link href="alertify.core.css" rel="stylesheet">  
+		<link href="alertify.default.css" rel="stylesheet" id = "toggleCSS"> 
+		<script src = "jquery-1.9.1.js"></script>
+		<script src="alertify.min.js"></script> 
+<script>
+	function start(){
+		var error = <%=getServletContext().getAttribute("error")%>;
+		if(error == "1"){
+			alertify.error("你輸入錯誤的密碼或帳號，請重試！");
+		}else if(error =="2"){
+			alertify.success("您已成功登出！");
+		}
+	}
+	window.addEventListener( "load", start, false );
+	   
+</script>
 
 <div align="center">
 <div style="

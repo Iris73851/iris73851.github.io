@@ -3,6 +3,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+<link href="alertify.core.css" rel="stylesheet">  
+		<link href="alertify.default.css" rel="stylesheet" id = "toggleCSS"> 
+		
+		<script src="alertify.min.js"></script> 
 <meta charset="BIG5">
 <title>SignIn</title>
 <script type="text/javascript">
@@ -10,9 +14,9 @@
 		
 	<%
     	String user = "root"; 
-    	String pass = ""; 
-    	String database = "wbse"; 
-   	    String url = "jdbc:mysql://127.0.0.1:3306/" + database + "?useUnicode=true&characterEncoding=big5"; 
+    	String pass = "root"; 
+    	String database = "user"; 
+   	    String url = "jdbc:mysql://140.121.197.131:3306/test/" + database + "?useUnicode=true&characterEncoding=big5"; 
     	     
     	//建立一個聯結物件 
    	    Connection conn; 
@@ -21,7 +25,7 @@
      	
     	try{ 
    	        //定義驅動程式與資料來源之間的連結 
-            Class.forName("org.gjt.mm.mysql.Driver").newInstance(); 
+            Class.forName("org.mariadb.jdbc.Driver").newInstance(); 
             //建立一個聯結物件 
             conn = DriverManager.getConnection(url,user,pass); 
             //建立Statement物件 
@@ -39,7 +43,7 @@
               var name = "<%=id%>";
               
               	if(name == document.getElementById("id").value){
-              		alert('your id have be set already!');
+              		alertify.error("你的帳號已有其他人使用！");
               		document.getElementById("id").value = "";
               		
               	}

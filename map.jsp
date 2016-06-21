@@ -32,9 +32,9 @@
         <%
         
     	String user = "root"; 
-    	String pass = ""; 
-    	String database = "shops"; 
-   	    String url = "jdbc:mysql://127.0.0.1:3306/" + database + "?useUnicode=true&characterEncoding=big5"; 
+    	String pass = "root"; 
+    	String database = "shop"; 
+   	    String url = "jdbc:mysql://140.121.197.131:3306/test/" + database + "?useUnicode=true&characterEncoding=big5"; 
     	     
     	//建立一個聯結物件 
    	    Connection conn; 
@@ -43,7 +43,7 @@
      	
     	try{ 
    	        //定義驅動程式與資料來源之間的連結 
-            Class.forName("org.gjt.mm.mysql.Driver").newInstance(); 
+            Class.forName("org.mariadb.jdbc.Driver").newInstance(); 
             //建立一個聯結物件 
             conn = DriverManager.getConnection(url,user,pass); 
             //建立Statement物件 

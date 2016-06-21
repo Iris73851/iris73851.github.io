@@ -25,12 +25,12 @@ public class loginServlet extends HttpServlet {
         // TODO Auto-generated constructor stub
     }
     // database URL
-  	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+  	static final String JDBC_DRIVER = "org.mariadb.jdbc.Driver";
     
   	// database connection settings
-    private String dbURL = "jdbc:mysql://127.0.0.1:3306/wbse?useUnicode=true&characterEncoding=utf-8";
+    private String dbURL = "jdbc:mysql://140.121.197.131:3306/test/user?useUnicode=true&characterEncoding=utf-8";
     private String dbUser = "root";
-    private String dbPass = "";
+    private String dbPass = "root";
     
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
@@ -74,8 +74,10 @@ public class loginServlet extends HttpServlet {
             	getServletContext().getRequestDispatcher("/hungryTaiwanIndex.jsp").forward(request, response);
             	
             }else{
-            	out.println("<script type='text/javascript'>alert('You Got Wrong password!');</script>");
-            	response.sendRedirect("loginPage.jsp");
+            	getServletContext().setAttribute("error", "1");
+            	// forwards to the message page
+	            getServletContext().getRequestDispatcher("/loginPage.jsp").forward(request, response);
+            	
             }
             
         } catch (SQLException ex) {

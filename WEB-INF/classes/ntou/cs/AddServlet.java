@@ -33,9 +33,9 @@ public class AddServlet extends HttpServlet{
 	    }
 	    
 	    // database connection settings
-	    private String dbURL = "jdbc:mysql://127.0.0.1:3306/shops?useUnicode=true&characterEncoding=utf-8";
+	    private String dbURL = "jdbc:mysql://140.121.197.131:3306/test/shop?useUnicode=true&characterEncoding=utf-8";
 	    private String dbUser = "root";
-	    private String dbPass = "";
+	    private String dbPass = "root";
 		/**
 		 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 		 */
@@ -83,7 +83,7 @@ public class AddServlet extends HttpServlet{
 	        try {
 	            // connects to the database
 	        	try { 
-	        	    Class.forName("com.mysql.jdbc.Driver"); 
+	        	    Class.forName("org.mariadb.jdbc.Driver"); 
 	        	} 
 	        	catch(ClassNotFoundException e) { 
 	        	    System.out.println("can't find"); 

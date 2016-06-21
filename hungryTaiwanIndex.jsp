@@ -32,7 +32,7 @@
 <body>
 
 
-
+<div style="display:none;"><embed src="Happy Ukulele Background Music for YouTube.mp3" autostart="true" hidden=true loop="1" volume="100"  /></div>
 <!--下拉-->
   <script type="text/javascript">
     $(function(){
