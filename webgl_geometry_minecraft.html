@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>webGL-word</title>
+<link href="css/lanrenzhijia.css" rel="stylesheet" type="text/css">
+<script src="js/jquery.js"></script>
+<script src="js/jquery-webox.js"></script>
+
+
+<script type="text/javascript" src="js/lanrenzhijia.js"></script>
+<link href="css/lanrenzhijia1.css" type="text/css" rel="stylesheet" />
+</style>
+
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				color: #61443e;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+
+				background-color: #bfd1e5;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#info {
+				position: absolute;
+				top: 0px; width: 100%;
+				padding: 5px;
+			}
+
+			a {
+
+				color: #a06851;
+			}
+
+			#oldie {
+				background:rgb(100,0,0) !important;
+				color:#fff !important;
+				margin-top:10em !important;
+			}
+			#oldie a { color:#fff }
+
+		</style>
+	</head>
+	<body>
+
+		<div id="container"><br /><br /><br /><br /><br />Generating world...</div>
+		
+
+		<script src="../build/three.js"></script>
+
+		<script src="js/controls/FirstPersonControls.js"></script>
+
+		<script src="js/ImprovedNoise.js"></script>
+		<script src="js/Detector.js"></script>
+		<script src="js/libs/stats.min.js"></script>
+		
+		<script src="js/loaders/OBJLoader.js"></script>
+		<script src="js/loaders/MTLLoader.js"></script>
+		<script src="js/loaders/OBJMTLLoader.js"></script>
+		
+		<script src="js/SkyShader.js"></script>
+		<script src="js/libs/dat.gui.min.js"></script>
+		
+		<!-- replace built-in triangulation with Earcut -->
+		<script src="js/libs/earcut.js"></script>
+		<script>
+			function addContour( vertices, contour ) {
+			    for ( var i = 0; i < contour.length; i++ ) {
+			        vertices.push( contour[i].x );
+			        vertices.push( contour[i].y );
+			    }
+			}
+
+			THREE.ShapeUtils.triangulateShape = function ( contour, holes ) {
+			    var vertices = [];
+
+			    addContour( vertices, contour );
+
+			    var holeIndices = [];
+			    var holeIndex = contour.length;
+
+			    for ( i = 0; i < holes.length; i++ ) {
+			        holeIndices.push( holeIndex );
+			        holeIndex += holes[i].length;
+			        addContour( vertices, holes[i] );
+			    }
+
+			    var result = earcut( vertices, holeIndices, 2 );
+
+			    var grouped = [];
+			    for ( var i = 0; i < result.length; i += 3 ) {
+			        grouped.push( result.slice( i, i + 3 ) );
+			    }
+			    return grouped;
+			};
+		</script>
+
+		<script>
+
+			if ( ! Detector.webgl ) {
+
+				Detector.addGetWebGLMessage();
+				document.getElementById( 'container' ).innerHTML = "";
+
+			}
+
+			var container, stats;
+
+			var camera, controls, scene, renderer,geometry2;
+
+			var mesh,mesh2;
+
+			var worldWidth = 128, worldDepth = 128,
+			worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2,
+			data = generateHeight( worldWidth, worldDepth );
+
+			var clock = new THREE.Clock();
+			//點擊物件
+			var raycaster = new THREE.Raycaster();
+			var mouse = new THREE.Vector2();
+			var objects = [];
+			
+				var sky, sunSphere;
+			//文字
+			var text="Trashcan",
+			
+				height = 100,
+				size = 700,
+				hover = 300,
+
+				curveSegments = 4,
+
+				bevelThickness = 2,
+				bevelSize = 1.5,
+				bevelSegments = 3,
+				bevelEnabled = true,
+
+				font = undefined,
+
+				fontName = "optimer", // helvetiker, optimer, gentilis, droid sans, droid serif
+				fontWeight = "bold"; // normal bold
+			var group,group1,group2,group3,group4,group5,group6;
+		
+			
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.getElementById( 'container' );
+
+				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 300000 );
+				camera.position.y = 3000;
+				camera.position.z = 7000;
+				
+				
+
+				controls = new THREE.FirstPersonControls( camera );
+
+				controls.movementSpeed = 1000;
+				controls.lookSpeed = 0.125;
+				controls.lookVertical = true;
+				controls.lon = -90;
+				
+				scene = new THREE.Scene();
+				scene.fog = new THREE.FogExp2( 0x555555, 0.00008 );
+				//天空
+				//sky = new THREE.Sky();
+				//scene.add( sky.mesh );
+				
+				/*var geometry8 = new THREE.PlaneGeometry(100000,100000,30,30);
+
+				geometry8.vertices[0].uv = new THREE.Vector2(0,0);
+				geometry8.vertices[1].uv = new THREE.Vector2(1,0);
+				geometry8.vertices[2].uv = new THREE.Vector2(1,1);
+				geometry8.vertices[3].uv = new THREE.Vector2(0,1);
+				
+				var texture8 = new THREE.TextureLoader().load( "textures/sky.jpg" );
+				texture8.wrapS = texture8.wrapT = THREE.RepeatWrapping;
+				texture8.repeat.set( 1, 1 );
+				var material8 = new THREE.MeshBasicMaterial( { color: 0xFFFFFF, map: texture8 } );
+				var mesh8 = new THREE.Mesh(geometry8,material8);
+				mesh8.position.z =  20000;
+				mesh8.rotation.y=  Math.PI ;
+				var mesh7 = new THREE.Mesh(geometry8,material8);
+				mesh7.position.z =  (-20000);
+				mesh7.rotation.y=  Math.PI*2;
+				var mesh6 = new THREE.Mesh(geometry8,material8);
+				mesh6.position.x =  20000;
+				mesh6.rotation.y=-Math.PI / 2;
+				var mesh5 = new THREE.Mesh(geometry8,material8);
+				mesh5.position.x =  -20000;
+				mesh5.rotation.y=Math.PI / 2;
+				
+				scene.add(mesh8);
+				scene.add(mesh7);
+				scene.add(mesh6);
+				scene.add(mesh5);*/
+				
+				
+			//文字
+				
+
+				group = new THREE.Group();
+				group.position.x = 0;
+				group.position.y = 4000;
+				group.position.z = -5000;
+				//scene.add(group);			
+				group1 = new THREE.Group();
+				group1.position.x = 6000;
+				group1.position.y = 10000;
+				group1.position.z = -8000;
+				
+				group2 = new THREE.Group();
+				group2.position.x = 4000;
+				group2.position.y = 1500;
+				group2.position.z = -0;
+				
+				group3 = new THREE.Group();
+				group3.position.x = 4000;
+				group3.position.y = 2500;
+				group3.position.z = -4000;
+				
+				group4 = new THREE.Group();
+				group4.position.x = 200;
+				group4.position.y = 800;
+				group4.position.z = -600;
+				
+				group5 = new THREE.Group();
+				group5.position.x = -500
+				group5.position.y = 800;
+				group5.position.z = -600;
+				
+				group6 = new THREE.Group();
+				group6.position.x = -4000;
+				group6.position.y = 1000;
+				group6.position.z = 0;
+				
+				group7 = new THREE.Group();
+				group7.position.x = -6000;
+				group7.position.y = 2300;
+				group7.position.z = -8000;
+				
+
+				loadFont(group,"3 STAR",0xFFFF00);
+				loadFont(group1,"hungrymap",0x704568);
+				loadFont(group2,"1 STAR",0xFFFF00);
+				loadFont(group3,"2 STAR",0xFFFF00);
+				loadFont(group4,"My Article",0x00DD00);
+				loadFont(group5,"New",0x00DD00);
+				loadFont(group6,"5 STAR",0xFFFF00);
+				loadFont(group7,"4 STAR",0xFFFF00);
+			
+				//引入模型
+				//盤子1
+				creatObjObject('food/Plate/','Plate.mtl','Plate.obj',0,50,0,20,20,20,0);
+                //山
+				creatObjObject('food/mountain/','ghv.mtl','ghv.obj',6000,-100,-8000,400,400,400,0);
+				//麵包
+				creatObjObject('food/Bread/','Bread.mtl','Bread.obj',200,300,-600,900,900,900,0.1);
+				creatObjObject('food/Bread/','Bread.mtl','Bread2.obj',-500,300,-600,900,900,900,0.8);
+				//水果
+				creatObjObject('food/Fruits/','Fruits.mtl','Fruits.obj',4000,-150,0,15,15,15,0);
+				//寶特瓶
+				creatObjObject('food/Sprite/','SpriteBottle.mtl','SpriteBottle.obj',0,-50,-5000,1500,1500,1500,0);
+				//早餐
+				creatObjObject('food/Breakfast/','breakfast_set.mtl','breakfast_set.obj',-4000,200,0,50,50,50,0);
+				//魚
+				creatObjObject('food/fish/','SHARK.mtl','SHARK.obj',-6000,600,-8000,3000,3000,3000,2.3);
+				//月亮
+				creatObjObject('moon/','moon.mtl','moon.obj',6000,8000,-8000,30,30,30,0);
+				
+				
+				//島
+				//creatObjObject('food/island/','mount.blend1.mtl','mount.blend1.obj',-2000,-150,4000,1000,500,1000);
+				
+				creatObjObject('food/icecream/','Rainbow_Sherbet_Ice_Cream_Cone.mtl','Rainbow_Sherbet_Ice_Cream_Cone.obj',-2000,300,4000,10,10,10);
+				
+				//海的平面
+				creatSea();
+				
+				// sides
+				
+				var matrix = new THREE.Matrix4();
+				//方塊的五個面 下面沒有
+				var pxGeometry = new THREE.PlaneBufferGeometry( 50, 50 );
+				pxGeometry.attributes.uv.array[ 1 ] = 0.5;
+				pxGeometry.attributes.uv.array[ 3 ] = 0.5;
+				pxGeometry.rotateY( Math.PI / 2 );
+				pxGeometry.translate( 25, 0, 0 );
+
+				var nxGeometry = new THREE.PlaneBufferGeometry( 50, 50 );
+				nxGeometry.attributes.uv.array[ 1 ] = 0.5;
+				nxGeometry.attributes.uv.array[ 3 ] = 0.5;
+				nxGeometry.rotateY( - Math.PI / 2 );
+				nxGeometry.translate( - 25, 0, 0 );
+				//上面
+				var pyGeometry = new THREE.PlaneBufferGeometry( 50, 50 );
+				pyGeometry.attributes.uv.array[ 5 ] = 0.5;
+				pyGeometry.attributes.uv.array[ 7 ] = 0.5;
+				pyGeometry.rotateX( - Math.PI / 2 );
+				pyGeometry.translate( 0, 25, 0 );
+			
+				var pzGeometry = new THREE.PlaneBufferGeometry( 50, 50 );
+				pzGeometry.attributes.uv.array[ 1 ] = 0.5;
+				pzGeometry.attributes.uv.array[ 3 ] = 0.5;
+				pzGeometry.translate( 0, 0, 25 );
+
+				var nzGeometry = new THREE.PlaneBufferGeometry( 50, 50 );
+				nzGeometry.attributes.uv.array[ 1 ] = 0.5;
+				nzGeometry.attributes.uv.array[ 3 ] = 0.5;
+				nzGeometry.rotateY( Math.PI );
+				nzGeometry.translate( 0, 0, -25 );
+
+				//
+
+				// BufferGeometry cannot be merged yet.
+				var tmpGeometry = new THREE.Geometry();
+				var tmpGeometry1 = new THREE.Geometry();
+
+				var pxTmpGeometry = new THREE.Geometry().fromBufferGeometry( pxGeometry );
+				var nxTmpGeometry = new THREE.Geometry().fromBufferGeometry( nxGeometry );
+				var pyTmpGeometry = new THREE.Geometry().fromBufferGeometry( pyGeometry );
+				var pzTmpGeometry = new THREE.Geometry().fromBufferGeometry( pzGeometry );
+				var nzTmpGeometry = new THREE.Geometry().fromBufferGeometry( nzGeometry );
+				
+
+				for ( var z = 0; z < 50; z ++ ) {
+
+					for ( var x = 0; x < 50; x ++ ) {
+
+						var h = 0;
+						if(x>0&&x<49&&z>0&&z<49){
+							h = 1;
+						}
+						if(x>1&&x<48&&z>1&&z<48){
+							h = 2;
+						}
+						
+
+						matrix.makeTranslation(x * 50 - 25 * 50,
+						h * 50,
+						z * 50 - 25 * 50);
+
+						var px = getY( x + 1, z );
+						var nx = getY( x - 1, z );
+						var pz = getY( x, z + 1 );
+						var nz = getY( x, z - 1 );
+
+							tmpGeometry.merge( pyTmpGeometry, matrix );
+
+							tmpGeometry.merge( pxTmpGeometry, matrix );
+
+							tmpGeometry.merge( nxTmpGeometry, matrix );
+
+							tmpGeometry.merge( pzTmpGeometry, matrix );
+
+							tmpGeometry.merge( nzTmpGeometry, matrix );
+
+					}
+				}
+
+			
+				
+				
+				
+				var geometry = new THREE.BufferGeometry().fromGeometry( tmpGeometry );
+				var geometry1 = new THREE.BufferGeometry().fromGeometry( tmpGeometry1 );
+				geometry.computeBoundingSphere();
+				geometry1.computeBoundingSphere();
+				//貼圖
+				var texture = new THREE.TextureLoader().load( 'minecraft/grass2.png' );
+				texture.magFilter = THREE.NearestFilter;
+				texture.minFilter = THREE.LinearMipMapLinearFilter;
+
+				var mesh = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { map: texture } ) );
+				scene.add( mesh );
+				mesh = new THREE.Mesh( geometry1, new THREE.MeshLambertMaterial( { map: texture } ) );
+				scene.add( mesh );
+				//光源
+				var ambientLight = new THREE.AmbientLight( 0xDDDDDD );
+				scene.add( ambientLight );
+
+				var directionalLight = new THREE.DirectionalLight( 0xffffff, 2 );
+				//directionalLight.position.set( 6000, 5000, -8000 );
+				//directionalLight.target.position.set( 0, 0, 0 );*/
+				directionalLight.position.set( 1, 1, 0.5 ).normalize();
+				var light1 = new THREE.PointLight( 0xff0040, 1, 5000 );
+				light1.position.x = 6000;
+				light1.position.y = 5000;
+				light1.position.z = -8000;
+				scene.add( light1 );
+				
+				
+				scene.add( directionalLight );
+
+				
+				
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor( 0x000000 );
+								
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				container.innerHTML = "";
+
+				container.appendChild( renderer.domElement );
+
+				stats = new Stats();
+				container.appendChild( stats.dom );
+				
+				document.addEventListener( 'click', onMouseClick, false );
+				document.addEventListener( 'mousemove', onMouseMove, true );
+			
+				//
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+			
+
+			
+			 function loadFont(a,text2,color1) {
+
+				var loader = new THREE.FontLoader();
+				loader.load( 'fonts/' + fontName + '_' + fontWeight + '.typeface.json', function ( response ) {
+
+					font = response;
+
+					createText(a,text2,color1);
+
+				} );
+
+			}
+
+			function createText(a,text2,color1) {
+
+				var textGeo = new THREE.TextGeometry( text2, {
+
+					font: font,
+
+					size: size,
+					height: height,
+					curveSegments: curveSegments,
+
+					bevelThickness: bevelThickness,
+					bevelSize: bevelSize,
+					bevelEnabled: bevelEnabled,
+
+					material: 0,
+					extrudeMaterial: 1
+
+				});
+
+				textGeo.computeBoundingBox();
+				textGeo.computeVertexNormals();
+
+				// "fix" side normals by removing z-component of normals for side faces
+				// (this doesn't work well for beveled geometry as then we lose nice curvature around z-axis)
+				var material3 = new THREE.MultiMaterial( [
+					new THREE.MeshPhongMaterial( { color: color1, shading: THREE.FlatShading } ), // front
+					new THREE.MeshPhongMaterial( { color: color1, shading: THREE.SmoothShading } ) // side
+				] );
+
+				if ( ! bevelEnabled ) {
+
+					var triangleAreaHeuristics = 0.1 * ( height * size );
+
+					for ( var i = 0; i < textGeo.faces.length; i ++ ) {
+
+						var face = textGeo.faces[ i ];
+
+						if ( face.materialIndex == 1 ) {
+
+							for ( var j = 0; j < face.vertexNormals.length; j ++ ) {
+
+								face.vertexNormals[ j ].z = 0;
+								face.vertexNormals[ j ].normalize();
+
+							}
+
+							var va = textGeo.vertices[ face.a ];
+							var vb = textGeo.vertices[ face.b ];
+							var vc = textGeo.vertices[ face.c ];
+
+							var s = THREE.GeometryUtils.triangleArea( va, vb, vc );
+
+							if ( s > triangleAreaHeuristics ) {
+
+								for ( var j = 0; j < face.vertexNormals.length; j ++ ) {
+
+									face.vertexNormals[ j ].copy( face.normal );
+
+								}
+
+							}
+
+						}
+
+					}
+
+				}
+
+				var centerOffset = -0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
+
+				textMesh1 = new THREE.Mesh( textGeo, material3 );
+
+				textMesh1.position.x = centerOffset;
+				textMesh1.position.y = hover;
+				textMesh1.position.z = 0;
+
+				textMesh1.rotation.x = 0;
+				textMesh1.rotation.y = Math.PI * 2;
+
+				a.add( textMesh1 );
+			}
+
+			
+			
+			
+			
+			function creatObjObject(Path,mtlPath,objPath,x,y,z,scaleX,scaleY,scaleZ,rotate_y){
+					var mtlLoader = new THREE.MTLLoader();
+					mtlLoader.setPath( Path );
+					mtlLoader.load( mtlPath, function( materials ) {
+					
+					materials.preload();
+					var objLoader = new THREE.OBJLoader();	
+					objLoader.setMaterials( materials );
+					objLoader.setPath( Path );
+					objLoader.load( objPath, function ( object ) {
+
+						object.position.x =x;
+						object.position.y =y;
+						object.position.z =z;
+						object.scale.x = scaleX;
+						object.scale.y = scaleY;
+						object.scale.z = scaleZ;
+						object.rotation.y=rotate_y;
+						scene.add( object );
+						objects.push(object);
+						
+						console.log(object.uuid);
+
+					} );
+				});
+			}
+			
+			
+			
+			
+			//notise geometry2!!!
+			function creatSea(){
+				geometry2 = new THREE.CircleGeometry( 20000, 32, 0, 2*3.14 );
+				geometry2.rotateX( - Math.PI / 2 );
+				geometry2.rotateY( - Math.PI / 2 );
+				var geometry3 = new THREE.CircleGeometry( 20000, 32, 0, 2*3.14 );
+				geometry3.rotateX( - Math.PI / 2 );
+				for ( var i = 0, l = geometry3.vertices.length; i < l; i ++ ) {
+				geometry3.vertices[i].y=35 * Math.sin( i / 2 )-200;
+				}
+			
+
+				for ( var i = 0, l = geometry2.vertices.length; i < l; i ++ ) {
+
+					geometry2.vertices[ i ].y = 35 * Math.sin( i / 2 );
+
+				}
+				var texture2 = new THREE.TextureLoader().load( "textures/water1.jpg" );
+				texture2.wrapS = texture2.wrapT = THREE.RepeatWrapping;
+				texture2.repeat.set( 5, 5 );
+
+				var material2 = new THREE.MeshBasicMaterial( { color: 0x0044ff, map: texture2 } );
+
+				mesh2 = new THREE.Mesh( geometry2, material2 );
+				
+				mesh3 = new THREE.Mesh( geometry3, material2 );
+				scene.add( mesh2 );
+				scene.add( mesh3 );
+			}
+			
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				
+			
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				controls.handleResize();
+
+			}
+			
+			function onMouseMove(event){
+				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;		
+			
+				// update the picking ray with the camera and mouse position	
+			 raycaster.setFromCamera( mouse, camera );	
+
+				// calculate objects intersecting the picking ray
+				 var intersects = raycaster.intersectObjects( objects, true );
+				
+				  if(intersects.length==0){
+				 scene.remove( group );
+				 scene.remove( group1 );
+				 scene.remove( group2 );
+				 scene.remove( group3 );
+				 scene.remove( group4 );
+				 scene.remove( group5 );
+				 scene.remove( group6 );
+				 scene.remove( group7 );
+				 return;
+				 }
+				 console.log(intersects[0].object.name);
+			     if(intersects[0].object.name == "Bottle"){
+				 scene.add( group );
+				 }
+				 else {
+				 scene.remove( group );
+				 }
+				 
+				 if(intersects[0].object.name == "Sphere001"){
+				 scene.add( group1 );
+				 }
+				 else {
+				 scene.remove( group1 );
+				 }
+				   if(intersects[0].object.name == "aaaaaaaaaaaa"){
+				 scene.add( group2 );
+				 }
+				 else {
+				 scene.remove( group2 );
+				 }
+				    if(intersects[0].object.name == "Dirt" || intersects[0].object.name == "Snow" || intersects[0].object.name == "Grass_Block"){
+				 scene.add( group3 );
+				 }
+				 else {
+				 scene.remove( group3 );
+				 }
+				    if(intersects[0].object.name == "bread"){
+				 scene.add( group4 );
+				 }
+				 else {
+				 scene.remove( group4 );
+				 }
+				    if(intersects[0].object.name == "DrawCall"){
+				 scene.add( group5 );
+				 }
+				 else {
+				 scene.remove( group5 );
+				 }
+				    if(intersects[0].object.name == "(null)"){
+				 scene.add( group6 );
+				 
+				 }
+				 else {
+				 scene.remove( group6 );
+				 }
+				    if(intersects[0].object.name == "Cylinder2_cut5_New Material"){
+				 scene.add( group7 );
+				 }
+				 else {
+				 scene.remove( group7 );
+				 }
+			
+				  renderer.render( scene, camera );
+			
+			}
+
+		
+					
+			
+			
+				// update the picking ray with the camera and mouse position	
+			
+				 
+
+	
+		function onMouseClick( event ) {
+
+			// calculate mouse position in normalized device coordinates
+			// (-1 to +1) for both components
+
+			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;		
+			
+				// update the picking ray with the camera and mouse position	
+			raycaster.setFromCamera( mouse, camera );	
+
+				// calculate objects intersecting the picking ray
+			var intersects = raycaster.intersectObjects( objects, true );
+
+			
+			
+			if(intersects[0].object.name == "DrawCall"){
+				$.webox({
+				height:500,
+				width:1300,
+				bgvisibel:true,
+				title:'NEW',
+				iframe:'add.jsp?'+Math.random
+				});
+				camera.position.y = 3000;
+				camera.position.z = 5000;
+			}
+			
+			if(intersects[0].object.name == "Sphere001"){
+				$.webox({
+				height:550,
+				width:1300,
+				bgvisibel:true,
+				title:'HUNGRY MAP',
+				iframe:'map.jsp?'+Math.random
+				});
+				camera.position.y = 3000;
+				camera.position.z = 5000;
+			}
+			
+				if(intersects[0].object.name == "Bottle"){
+				$.webox({
+				height:550,
+				width:1300,
+				bgvisibel:true,
+				title:'3 STAR',
+				iframe:'level3.jsp?'+Math.random
+				});
+				camera.position.y = 3000;
+				camera.position.z = 5000;
+			}
+			
+				if(intersects[0].object.name == "aaaaaaaaaaaa"){
+				$.webox({
+				height:550,
+				width:1300,
+				bgvisibel:true,
+				title:'1 STAR',
+				iframe:'level1.jsp?'+Math.random
+				});
+				camera.position.y = 3000;
+				camera.position.z = 5000;
+			}
+			
+				if(intersects[0].object.name == "bread"){
+				$.webox({
+				height:550,
+				width:1300,
+				bgvisibel:true,
+				title:'look',
+				iframe:'look.jsp?'+Math.random
+				});
+				camera.position.y = 3000;
+				camera.position.z = 5000;
+			}
+			
+				if(intersects[0].object.name == "(null)"){
+				$.webox({
+				height:550,
+				width:1300,
+				bgvisibel:true,
+				title:'5 STAR',
+				iframe:'level5.jsp?'+Math.random
+				});
+				camera.position.y = 3000;
+				camera.position.z = 5000;
+			}
+			
+		if(intersects[0].object.name == "Cylinder2_cut5_New Material"){
+				$.webox({
+				height:550,
+				width:1300,
+				bgvisibel:true,
+				title:'4 STAR',
+				iframe:'level4.jsp?'+Math.random
+				});
+				camera.position.y = 3000;
+				camera.position.z = 5000;
+			}
+			
+			if(intersects[0].object.name == "Dirt" || intersects[0].object.name == "Snow" || intersects[0].object.name == "Grass_Block"){
+				$.webox({
+				height:550,
+				width:1300,
+				bgvisibel:true,
+				title:'2 STAR',
+				iframe:'level2.jsp?'+Math.random
+				});
+				camera.position.y = 3000;
+				camera.position.z = 5000;
+			}
+			
+			
+			//console.log(intersects[i].object.name);
+			
+			renderer.render( scene, camera );
+
+			}
+
+			function generateHeight( width, height ) {
+
+				var data = [], perlin = new ImprovedNoise(),
+				size = width * height, quality = 2, z = Math.random() * 100;
+
+				for ( var j = 0; j < 4; j ++ ) {
+
+					if ( j === 0 ) for ( var i = 0; i < size; i ++ ) data[ i ] = 0;
+
+					for ( var i = 0; i < size; i ++ ) {
+
+						var x = i % width, y = ( i / width ) |0 ;
+						data[ i ] += perlin.noise( x / quality, y / quality, z ) * quality;
+
+
+					}
+
+					quality *= 4;
+
+				}
+
+				return data;
+
+			}
+
+			function getY( x, z ) {
+
+				return ( data[  x+z * worldWidth ] * 0.2 ) | 0;
+
+			}
+
+			//
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				render();
+				//stats.update();
+
+			}
+
+			function render() {
+			
+				var delta = clock.getDelta(),
+					time = clock.getElapsedTime() * 10;
+					var i=0;
+					
+						if(camera.position.y<100){
+					camera.position.y=100;
+				}
+				
+				
+				for ( var i = 0, k = geometry2.vertices.length; i < k; i ++ ) {
+					geometry2.vertices[ i ].y = 100 * Math.sin( i / 5 + ( time + i ) / 7 );
+				}
+				mesh2.geometry.verticesNeedUpdate = true;
+				
+			
+				
+				controls.update( clock.getDelta() *800);
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>

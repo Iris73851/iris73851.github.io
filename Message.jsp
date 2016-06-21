@@ -125,10 +125,10 @@ float:right;
         </center></div>
      
        <div id="minus">
-         <%  String id = (String)request.getAttribute("id");
+         <%  
              out.print("<form method='post' action ='deleteServlet'>"
 	                    + "<div>"
-	                    +"<a href='deleteServlet?particle="+id+"' style='text-decoration:none;'>"
+	                    +"<a href='deleteServlet?particle="+request.getAttribute("id")+"' style='text-decoration:none;'>"
                         +"<img src='http://molening.github.io/watermelon/basePicture/delete.png' width='60px' height='60px'/></a>"
 	                    + "</div>"
                         + "</form>");

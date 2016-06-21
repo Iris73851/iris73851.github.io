@@ -1,10 +1,266 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />	
+	<title>HungryTaiwan Readme</title>
+	<link rel="stylesheet" type="text/css" href="jquery.multiscroll.css" />
+	<link rel="stylesheet" type="text/css" href="examples.css" />
+	<!--[if IE]>
+		<script type="text/javascript">
+			 var console = { log: function() {} };
+		</script>
+	<![endif]-->
+		
+	<script src="http://www.lanrenzhijia.com/ajaxjs/1.8.3/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="vendors/jquery.easings.min.js"></script>
+
+	<script type="text/javascript" src="jquery.multiscroll.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			$('#myContainer').multiscroll({
+            	sectionsColor: ['#1bbc9b', '#4BBFC3', '#7BAABE','#1bbc9b','#4BBFC3', '#7BAABE','#1bbc9b', '#4BBFC3'],
+            	anchors: ['page1', 'page2', 'page3','page4','page5','page6','page7','page8'],
+            	menu: '#menu',
+            	navigation: true,
+            	navigationTooltips: ['uno', 'dos', 'tres'],
+            	normalScrollElements: '#demo',
+            	loopBottom: true,
+            	loopTop: true,
+            	onLeave: function(index, nextIndex, direction){
+            		console.log("onLeave==> index: " + index +" nextIndex: " + nextIndex + " direction: " + direction );
+            	},
+            	afterLoad: function(anchorLink, index){
+					console.log("afterLoad==> anchorLink: " + anchorLink +" index: " + index);
+            	},
+            	afterRender: function(){
+            		console.log("finish rendering");
+            	}
+            });
+
+            $('#pepe').click(function(){
+            	$.fn.multiscroll.moveTo('page4');
+            });
+		});
+    </script>
+
+	<style>
+		#pepe{
+			position:fixed;
+			top: 100px;
+			left: 50px;
+			z-index: 99999;
+		}
+	</style>
+
 </head>
 <body>
-登入後主畫面
+
+<div id="pepe"></div>
+<ul id="menu">
+	<li data-menuanchor="page1"><a href="#page1">1</a></li>
+	<li data-menuanchor="page2"><a href="#page2">2</a></li>
+	<li data-menuanchor="page3"><a href="#page3">3</a></li>
+	<li data-menuanchor="page4"><a href="#page4">4</a></li>
+	<li data-menuanchor="page5"><a href="#page5">5</a></li>
+	<li data-menuanchor="page6"><a href="#page6">6</a></li>
+	<li data-menuanchor="page7"><a href="#page7">7</a></li>
+	<li data-menuanchor="page8"><a href="#page8">8</a></li>
+</ul>
+
+<div id="myContainer">
+
+	<div class="ms-left">
+		<div class="ms-section" id="left1">
+			<div align=center>
+				<img src="img\01.png"></img>
+			</div>
+		</div>
+
+		<div class="ms-section" id="left2">
+			<div align=center>
+				<img src="img\02.png"></img>
+			</div> 
+		</div>
+
+		<div class="ms-section" id="left3">
+			<div align=center>
+				<img src="img\03-4.png" width=50%></img><img src="img\03-5.png" width=50%></img><br><br>
+				<img src="img\03-6.png" width=50%></img><img src="img\03-7.png" width=50%></img><br><br>
+				<img src="img\03-8.png" width=50%></img><br>
+			</div> 
+		</div>
+		
+		<div class="ms-section" id="left4">
+			<div align=center>
+				<img src="img\04.png" width=95%></img>
+			</div> 
+		</div>
+		
+		<div class="ms-section" id="left5">
+			<div align=center>
+				<img src="img\05.png" width=95%></img>
+			</div> 
+		</div>
+		
+		<div class="ms-section" id="left6">
+			<div align=center>
+				<img src="img\06-1.png" width=75%></img><br><br>
+				<img src="img\06-2.png" width=75%>
+			</div> 
+		</div>
+		
+		<div class="ms-section" id="left7">
+			<div align=center>
+				<img src="img\07-1.png" width=60%></img><br><br>
+				<img src="img\07-2.png" width=60%></img><br><br>
+				<img src="img\07-3.png" width=60%></img>
+			</div> 
+		</div>
+		
+		<div class="ms-section" id="left8">
+			<div align=center>
+				<img src="img\HungryTWmark.png" width=100%></img>
+			</div> 
+		</div>
+		
+		
+	</div>
+	
+	<div class="ms-right">
+		<div class="ms-section" id="right1">
+			<div align=center>
+				<font size="24" face="微軟正黑體"><b>
+				歡迎使用食飢台灣HungryTaiwan，<br>
+				——為您量身打造的美食日誌。<br><br>
+				
+				首先，請先登入您的帳號密碼，<br><br>
+				
+				來進入HungryTaiwan Fantasy！</b></font>
+			</div>
+		</div>
+
+		<div class="ms-section" id="right2">
+			<div align=center>
+				<font size="24" face="微軟正黑體"><b>
+				
+				若是首次來到本系統，<br>
+				誠摯的歡迎您註冊帳號，<br>
+				現在就加入我們的行列！<br><br>
+				
+				於左側畫面中輸入帳號密碼，即可註冊！
+				</b></font>
+			</div>
+		</div>
+
+		<div class="ms-section" id="right3">
+			<div align=center>
+				<font size="24" face="微軟正黑體"><b>
+				登入後就會呈現如左的頁面，<br>
+				每個物件都可以點按。<br><br>
+				
+				由右至左點進去後分別為<br>
+				<font color=red>
+				一星至五星的文章列表</font>；<br><br>
+				
+				中間兩個麵包分別為<br>
+				<font color=red>
+				新增文章</font> 與<font color=red>
+				我的文章</font>；<br><br>
+				
+				而右上方的月球則是
+				<font color=red>
+				食饑地圖</font>。
+				
+				</b></font>
+			</div>
+		</div>
+		
+		<div class="ms-section" id="right4">
+			<div align=center>
+				<font size="24" face="微軟正黑體"><b>
+					若按下新增文章，則會跳出此畫面。<br>
+					填寫各項資訊後，<br>
+					按下右下角可愛的蛋黃哥，<br>
+					即可新增成功！
+				</b></font>
+			</div>
+		</div>
+		
+		<div class="ms-section" id="right5">
+			<div align=center>
+				<font size="24" face="微軟正黑體"><b>
+					文章填寫完畢後，<br>
+					會跳轉至個人的所有文章列表，<br>
+					並依照星等排列。<br>
+					<font color=red>
+					(文章列表也可以從主頁面進入唷!)</font><br><br>
+					
+					若只想看單一星等的文章，<br>
+					可點選右上角的星等，<br>
+					則會跳轉至各星等列表。
+				</b></font>
+			</div>
+		</div>
+		
+		<div class="ms-section" id="right6">
+			<div align=center>
+				<font size="24" face="微軟正黑體"><b>
+				
+				以二星列表為例，<br>
+				點進來可看見標題最前方的
+				<font color=red>
+				星星數</font>，<br>
+				緊接在後是
+				<font color=red>
+				店家名稱</font>，<br>
+				下方較小的字則是
+				<font color=red>
+				店家地址</font>！<br>
+				<font color=red>
+				(個別星等文章列表也可以從主頁面進入唷!)</font><br><br>
+				
+				點進文章後，<br>
+				則會出現左列頁面。<br><br>
+				
+				按下右上角的 <font color=red>食飢Taiwan</font>，<br>
+				就可以跳轉至 <font color=red>食饑地圖</font>！
+				</b></font>
+			</div>
+		</div>
+		
+		<div class="ms-section" id="right7">
+			<div align=center>
+				<font size="24" face="微軟正黑體"><b>
+				<font color=red>
+					(食饑地圖也可以從主頁面進入唷!)</font><br>
+					地圖會將食記所在地點標示出來，<br>
+					當地點過於密集，會<font color=red> 縮成一點</font>，<br>
+					並標示出該地附近的<font color=red> 食記數量</font>，<br>
+					如第一張圖所示。<br><br>
+					
+					由第二張圖可見，當<font color=red> 比例尺再拉近</font>時，<br>
+					可以再細分為各個點。<br><br>
+					
+					而第三張圖所展示的是：<br>
+					當點選食記圖示時，<br>
+					會顯示該<font color=red> 店家名稱</font>，<br>
+					再次點選就會進入食記內容！				
+				</b></font>
+			</div>
+		</div>
+		
+		<div class="ms-section" id="right8">
+			<div align=center>
+				<font size="24" color=red face="微軟正黑體"><b>
+					這麼厲害的食記系統，<br>
+					你還在等什麼！<br>
+					趕快註冊了啦！
+				</b></font>
+			</div>
+		</div>
+		
+	</div>	
+</div>
+
 </body>
 </html>
